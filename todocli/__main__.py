@@ -1,7 +1,7 @@
 """ToDo CLI entry point script"""
-#src/__main__.py
+#todocli/__main__.py
 
-from src import cli, __app_name__
+from todocli import cli, __app_name__
 
 def main():
     cli.app(prog_name=__app_name__)

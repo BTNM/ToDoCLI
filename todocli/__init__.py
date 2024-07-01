@@ -1,5 +1,5 @@
 """Top-level package for To-Do."""
-# src/__init__.py
+# todocli/__init__.py
 
 __app_name__ = "todocli"
 __version__ = "0.1.0"
