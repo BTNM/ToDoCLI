@@ -4,7 +4,7 @@
 from pathlib import Path
 from typing import Any, Dict, NamedTuple, List
 from todocli.database import DatabaseHandler
-from todocli import DB_READ_ERROR
+from todocli import DB_READ_ERROR, ID_ERROR
 
 
 class CurrentTodo(NamedTuple):
@@ -30,5 +30,23 @@ class Todoer:
         if read.error == DB_READ_ERROR:
             return CurrentTodo(todo, read.error)
         read.todo_list.append(todo)
+        write = self._db_handler.write_todos(read.todo_list)
+        return CurrentTodo(todo, write.error)
+
+    def get_todo_list(self) -> List[Dict[str, Any]]:
+        """Return the current todo list"""
+        read = self._db_handler.read_todos()
+        return read.todo_list
+
+    def set_done(self, todo_id: int) -> CurrentTodo:
+        """Set a todo as Done"""
+        read = self._db_handler.read_todos()
+        if read.error:
+            return CurrentTodo({}, read.error)
+        try:
+            todo = read.todo_list[todo_id - 1]
+        except IndexError:
+            return CurrentTodo({}, ID_ERROR)
+        todo["Done"] = True
         write = self._db_handler.write_todos(read.todo_list)
         return CurrentTodo(todo, write.error)

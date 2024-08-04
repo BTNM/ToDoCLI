@@ -58,6 +58,76 @@ def get_todoer() -> todocli.Todoer:
         raise typer.Exit(1)
 
 
+@app.command()
+def add(
+    description: List[str] = typer.Argument(...),
+    priority: int = typer.Option(2, "--priority", "-p", min=1, max=3),
+) -> None:
+    """Add a new todo with a description"""
+    todoer = get_todoer()
+    todo, error = todoer.add(description, priority)
+    if error:
+        typer.secho(f'Adding todo failed with "{ERRORS[error]}"', fg=typer.colors.RED)
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"""to-do: "{todo['Description']}" was added """
+            f"""with priority: {priority}""",
+            fg=typer.colors.GREEN,
+        )
+
+
+@app.command(name="list")
+def list_all() -> None:
+    """List all todos"""
+    todoer = get_todoer()
+    todo_list = todoer.get_todo_list()
+    if len(todo_list) == 0:
+        typer.secho("There are no tasks in the to-do list yet", fg=typer.colors.RED)
+        raise typer.Exit()
+    typer.secho("\nto-do list:\n", fg=typer.colors.BLUE, bold=True)
+    columns = (
+        "ID.  ",
+        "| Priority  ",
+        "| Done  ",
+        "| Description  ",
+    )
+    headers = "".join(columns)
+    typer.secho(headers, fg=typer.colors.GREEN, bold=True)
+    typer.secho("-" * len(headers), fg=typer.colors.GREEN)
+    for (
+        id,
+        todo,
+    ) in enumerate(todo_list, 1):
+        desc, priority, done = todo.values()
+        typer.secho(
+            f"{id}{(len(columns[0]) - len(str(id))) * ' '}"
+            f"| ({priority}){(len(columns[1]) - len(str(priority)) - 4) * ' '}"
+            f"| {done}{(len(columns[2]) - len(str(done)) - 2) * ' '}"
+            f"| {desc}",
+            fg=typer.colors.BLUE,
+        )
+    typer.secho("-" * len(headers) + "\n", fg=typer.colors.GREEN)
+
+
+@app.command(name="complete")
+def set_done(todo_id: int = typer.Argument(...)) -> None:
+    """Complete a todo by setting it as done using its TODO_ID"""
+    todoer = get_todoer()
+    todo, error = todoer.set_done(todo_id)
+    if error:
+        typer.secho(
+            f'Completing to-do # "{todo_id}" failed with "{ERRORS[error]}"',
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"""to-do # {todo_id} "{todo['Description']}" completed!""",
+            fg=typer.colors.GREEN,
+        )
+
+
 def _version_callback(value: bool) -> None:
     if value:
         typer.echo(f"{__app_name__} v{__version__}")
