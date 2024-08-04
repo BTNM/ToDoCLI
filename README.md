@@ -1,5 +1,7 @@
 # ToDoCLI
 
+- from "https://realpython.com/python-typer-cli/#step-3-prepare-the-to-do-database-for-use"
+
 ## Python ToDo program with CLI commands (following guide)
 - Building a functional to-do application with **Typer CLI** in python
 - Using Typer to add **commands, arguments** and **options** to to-do app

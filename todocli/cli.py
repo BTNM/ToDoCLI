@@ -1,13 +1,15 @@
 """This module provides the ToDo CLI"""
+
 # todocli/cli.py
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 import typer
-from todocli import __app_name__, __version__, ERRORS, config, database
+from todocli import __app_name__, __version__, ERRORS, config, database, todocli
 
 
 app = typer.Typer()
+
 
 @app.command()
 def init(
@@ -23,24 +25,44 @@ def init(
     if app_init_error:
         typer.secho(
             f'Creating config file failed with "{ERRORS[app_init_error]}"',
-            fg=typer.colors.RED
+            fg=typer.colors.RED,
         )
         raise typer.Exit(1)
     db_init_error = database.init_database(Path(db_path))
     if db_init_error:
         typer.secho(
             f'Creating database failed with "{ERRORS[db_init_error]}"',
-            fg=typer.colors.RED
+            fg=typer.colors.RED,
         )
         raise typer.Exit(1)
     else:
         typer.secho(f"The todo database is {db_path}", fg=typer.colors.GREEN)
 
 
+def get_todoer() -> todocli.Todoer:
+    if config.CONFIG_FILE_PATH.exists():
+        db_path = database.get_database_path(config.CONFIG_FILE_PATH)
+    else:
+        typer.secho(
+            'Config file not found. Please, run "todocli init"',
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(1)
+    if db_path.exists():
+        return todocli.Todoer(db_path)
+    else:
+        typer.secho(
+            'Database not found. Please, run "todocli init"',
+            fg=typer.colors.Red,
+        )
+        raise typer.Exit(1)
+
+
 def _version_callback(value: bool) -> None:
     if value:
         typer.echo(f"{__app_name__} v{__version__}")
         raise typer.Exit()
+
 
 @app.callback()
 def main(
@@ -54,5 +76,3 @@ def main(
     )
 ) -> None:
     return
-
-
