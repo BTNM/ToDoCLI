@@ -6,7 +6,7 @@ from pathlib import Path
 from todocli import DB_WRITE_ERROR, DB_READ_ERROR, SUCCESS, JSON_ERROR
 from typing import Any, Dict, List, NamedTuple
 
-
+# C:\Users\Bao Thien\.Bao Thien_todo.json
 DEFAULT_DB_FILE_PATH = Path.home().joinpath("." + Path.home().stem + "_todo.json")
 
 
